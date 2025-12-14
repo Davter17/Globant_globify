@@ -1,6 +1,8 @@
 // Main application entry point
 import { initRouter } from './router.js';
 import { login, logout, isAuthenticated, handleCallback } from './auth.js';
+import { getUserProfile } from './api.js';
+import { initMenu } from './menu.js';
 
 console.log('Globify app starting...');
 
@@ -75,6 +77,26 @@ function updateUIForAuth(authenticated) {
     }
 }
 
+// Update header with user information
+function updateHeaderWithUser(userData) {
+    const userNameElement = document.querySelector('.user-name');
+    const userAvatarElement = document.querySelector('.user-avatar img');
+    
+    if (userNameElement && userData.display_name) {
+        userNameElement.textContent = userData.display_name;
+        console.log('✅ Username updated:', userData.display_name);
+    }
+    
+    if (userAvatarElement && userData.images && userData.images.length > 0) {
+        userAvatarElement.src = userData.images[0].url;
+        userAvatarElement.alt = userData.display_name;
+        userAvatarElement.style.display = 'block';
+        console.log('✅ Avatar updated:', userData.images[0].url);
+    }
+    
+    console.log('✅ Header updated with user info');
+}
+
 // Listen for logout events
 window.addEventListener('userLoggedOut', () => {
     console.log('🔔 Logout event received - updating UI');
@@ -98,6 +120,9 @@ async function initApp() {
     // Initialize router
     initRouter();
     
+    // Initialize menu
+    initMenu();
+    
     // Check authentication and update UI
     const authenticated = isAuthenticated();
     updateUIForAuth(authenticated);
@@ -109,7 +134,15 @@ async function initApp() {
     } else {
         // Load user data
         console.log('👤 Loading user data...');
-        // This will be implemented in Phase 6
+        try {
+            const userData = await getUserProfile();
+            console.log('✅ User profile loaded:', userData.display_name);
+            
+            // Update header with user info
+            updateHeaderWithUser(userData);
+        } catch (error) {
+            console.error('❌ Failed to load user data:', error);
+        }
     }
     
     console.log('✅ Globify initialized successfully!');

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Globify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #1db954;
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            color: #1db954;
+        }
+        
+        button {
+            background: #1db954;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #1ed760;
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            background: #1a1a1a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            color: #1db954;
+        }
+        
+        .error {
+            color: #ff4444;
+        }
+        
+        .warning {
+            color: #ffaa00;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .status.ok {
+            background: #1db954;
+        }
+        
+        .status.fail {
+            background: #ff4444;
+        }
+        
+        .status.pending {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de API - Fase 6</h1>
+    <p>Este test verifica que todas las funciones de la API estén implementadas correctamente.</p>
+    
+    <div class="test-section">
+        <h2>📝 Pre-requisitos</h2>
+        <div id="auth-status">
+            <p>Estado de autenticación: <span class="status pending" id="auth-badge">Verificando...</span></p>
+            <p id="user-info"></p>
+            <button id="login-test-btn" style="display:none;">Login con Spotify</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>👤 Test: User API</h2>
+        <button id="test-profile">Test getUserProfile()</button>
+        <button id="test-saved-tracks">Test getSavedTracks()</button>
+        <div class="result" id="result-user"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📚 Test: Browse API</h2>
+        <button id="test-categories">Test getCategories()</button>
+        <button id="test-category-playlists">Test getCategoryPlaylists()</button>
+        <div class="result" id="result-browse"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Test: Playlists API</h2>
+        <button id="test-user-playlists">Test getUserPlaylists()</button>
+        <button id="test-playlist">Test getPlaylist()</button>
+        <div class="result" id="result-playlists"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 Test: Search API</h2>
+        <button id="test-search">Test searchTracks()</button>
+        <div class="result" id="result-search"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎵 Test: Player API</h2>
+        <button id="test-current-playback">Test getCurrentPlayback()</button>
+        <div class="result" id="result-player"></div>
+        <p class="warning">⚠️ Nota: Los tests de play/pause requieren Spotify Premium</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>🛠️ Test: Helper Functions</h2>
+        <button id="test-helpers">Test Helpers</button>
+        <div class="result" id="result-helpers"></div>
+    </div>
+
+    <script type="module">
+        import { 
+            getUserProfile, 
+            getSavedTracks,
+            getCategories,
+            getCategoryPlaylists,
+            getUserPlaylists,
+            getPlaylist,
+            searchTracks,
+            getCurrentPlayback,
+            formatDuration,
+            getArtistName,
+            getArtistNames
+        } from './scripts/api.js';
+        
+        import { isAuthenticated, login } from './scripts/auth.js';
+        import { STORAGE_KEYS } from './scripts/config.js';
+        
+        // Check authentication
+        const authenticated = isAuthenticated();
+        const authBadge = document.getElementById('auth-badge');
+        const userInfo = document.getElementById('user-info');
+        const loginBtn = document.getElementById('login-test-btn');
+        
+        if (authenticated) {
+            authBadge.textContent = 'Autenticado ✓';
+            authBadge.className = 'status ok';
+            
+            const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+            if (userData) {
+                const user = JSON.parse(userData);
+                userInfo.innerHTML = `<span class="success">Usuario: ${user.display_name} (${user.email})</span>`;
+            }
+        } else {
+            authBadge.textContent = 'No autenticado ✗';
+            authBadge.className = 'status fail';
+            userInfo.innerHTML = '<span class="error">Debes autenticarte primero</span>';
+            loginBtn.style.display = 'inline-block';
+            loginBtn.onclick = login;
+            
+            // Disable all test buttons
+            document.querySelectorAll('button[id^="test-"]').forEach(btn => {
+                if (btn.id !== 'login-test-btn') btn.disabled = true;
+            });
+        }
+        
+        // Helper to display results
+        function displayResult(elementId, result, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            element.innerHTML = `<pre class="${className}">${JSON.stringify(result, null, 2)}</pre>`;
+        }
+        
+        // Test getUserProfile
+        document.getElementById('test-profile').onclick = async () => {
+            try {
+                const result = await getUserProfile();
+                displayResult('result-user', {
+                    success: true,
+                    name: result.display_name,
+                    email: result.email,
+                    country: result.country,
+                    product: result.product,
+                    followers: result.followers.total
+                });
+            } catch (error) {
+                displayResult('result-user', { error: error.message }, true);
+            }
+        };
+        
+        // Test getSavedTracks
+        document.getElementById('test-saved-tracks').onclick = async () => {
+            try {
+                const result = await getSavedTracks(5);
+                displayResult('result-user', {
+                    success: true,
+                    total: result.total,
+                    tracks: result.items.slice(0, 3).map(item => ({
+                        name: item.track.name,
+                        artist: item.track.artists[0].name,
+                        album: item.track.album.name
+                    }))
+                });
+            } catch (error) {
+                displayResult('result-user', { error: error.message }, true);
+            }
+        };
+        
+        // Test getCategories
+        document.getElementById('test-categories').onclick = async () => {
+            try {
+                const result = await getCategories(10);
+                displayResult('result-browse', {
+                    success: true,
+                    categories: result.categories.items.map(cat => ({
+                        id: cat.id,
+                        name: cat.name
+                    }))
+                });
+            } catch (error) {
+                displayResult('result-browse', { error: error.message }, true);
+            }
+        };
+        
+        // Test getCategoryPlaylists
+        document.getElementById('test-category-playlists').onclick = async () => {
+            try {
+                const result = await getCategoryPlaylists('pop', 5);
+                displayResult('result-browse', {
+                    success: true,
+                    playlists: result.playlists.items.slice(0, 3).map(pl => ({
+                        name: pl.name,
+                        tracks: pl.tracks.total
+                    }))
+                });
+            } catch (error) {
+                displayResult('result-browse', { error: error.message }, true);
+            }
+        };
+        
+        // Test getUserPlaylists
+        document.getElementById('test-user-playlists').onclick = async () => {
+            try {
+                const result = await getUserPlaylists(10);
+                displayResult('result-playlists', {
+                    success: true,
+                    total: result.total,
+                    playlists: result.items.slice(0, 3).map(pl => ({
+                        id: pl.id,
+                        name: pl.name,
+                        tracks: pl.tracks.total
+                    }))
+                });
+                
+                // Save first playlist ID for next test
+                if (result.items.length > 0) {
+                    window.testPlaylistId = result.items[0].id;
+                }
+            } catch (error) {
+                displayResult('result-playlists', { error: error.message }, true);
+            }
+        };
+        
+        // Test getPlaylist
+        document.getElementById('test-playlist').onclick = async () => {
+            try {
+                const playlistId = window.testPlaylistId || '37i9dQZF1DXcBWIGoYBM5M';
+                const result = await getPlaylist(playlistId);
+                displayResult('result-playlists', {
+                    success: true,
+                    name: result.name,
+                    description: result.description,
+                    tracks: result.tracks.total,
+                    followers: result.followers.total
+                });
+            } catch (error) {
+                displayResult('result-playlists', { error: error.message }, true);
+            }
+        };
+        
+        // Test searchTracks
+        document.getElementById('test-search').onclick = async () => {
+            try {
+                const result = await searchTracks('bohemian rhapsody', 5);
+                displayResult('result-search', {
+                    success: true,
+                    results: result.tracks.items.map(track => ({
+                        name: track.name,
+                        artist: track.artists[0].name,
+                        album: track.album.name,
+                        duration: formatDuration(track.duration_ms)
+                    }))
+                });
+            } catch (error) {
+                displayResult('result-search', { error: error.message }, true);
+            }
+        };
+        
+        // Test getCurrentPlayback
+        document.getElementById('test-current-playback').onclick = async () => {
+            try {
+                const result = await getCurrentPlayback();
+                if (result && result.item) {
+                    displayResult('result-player', {
+                        success: true,
+                        isPlaying: result.is_playing,
+                        track: result.item.name,
+                        artist: result.item.artists[0].name,
+                        progress: formatDuration(result.progress_ms),
+                        duration: formatDuration(result.item.duration_ms)
+                    });
+                } else {
+                    displayResult('result-player', {
+                        success: true,
+                        message: 'No hay reproducción activa'
+                    });
+                }
+            } catch (error) {
+                displayResult('result-player', { error: error.message }, true);
+            }
+        };
+        
+        // Test helpers
+        document.getElementById('test-helpers').onclick = () => {
+            const mockTrack = {
+                duration_ms: 354320,
+                artists: [
+                    { name: 'Queen' },
+                    { name: 'David Bowie' }
+                ]
+            };
+            
+            displayResult('result-helpers', {
+                success: true,
+                formatDuration: formatDuration(mockTrack.duration_ms),
+                getArtistName: getArtistName(mockTrack),
+                getArtistNames: getArtistNames(mockTrack)
+            });
+        };
+    </script>
+</body>
+</html>

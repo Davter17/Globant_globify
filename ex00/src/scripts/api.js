@@ -114,14 +114,38 @@ export async function getCategoryPlaylists(categoryId, limit = QUERY_DEFAULTS.LI
     console.log(`📋 Fetching playlists for category: ${categoryId}...`);
     try {
         const params = new URLSearchParams({
-            limit: limit.toString()
+            limit: limit.toString(),
+            country: 'US' // Add country parameter to help with regional categories
         });
         
         const endpoint = SPOTIFY_ENDPOINTS.CATEGORY_PLAYLISTS(categoryId);
-        const data = await spotifyFetch(`${endpoint}?${params}`);
+        const fullUrl = `${endpoint}?${params}`;
+        console.log(`🔗 Full URL: ${fullUrl}`);
+        
+        const data = await spotifyFetch(fullUrl);
         return data;
     } catch (error) {
         console.error('❌ Error fetching category playlists:', error);
+        console.error('Category ID:', categoryId);
+        console.error('Full error:', error);
+        throw error;
+    }
+}
+
+// Get Featured Playlists (fallback when categories fail)
+export async function getFeaturedPlaylists(limit = QUERY_DEFAULTS.LIMIT) {
+    console.log('🌟 Fetching featured playlists...');
+    try {
+        const params = new URLSearchParams({
+            limit: limit.toString(),
+            country: 'US'
+        });
+        
+        const data = await spotifyFetch(`${SPOTIFY_ENDPOINTS.FEATURED_PLAYLISTS}?${params}`);
+        console.log(`✅ Loaded ${data.playlists.items.length} featured playlists`);
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching featured playlists:', error);
         throw error;
     }
 }
@@ -186,6 +210,25 @@ export async function searchTracks(query, limit = QUERY_DEFAULTS.LIMIT) {
         return data;
     } catch (error) {
         console.error('❌ Error searching tracks:', error);
+        throw error;
+    }
+}
+
+// Search for playlists by genre/keyword
+export async function searchPlaylists(query, limit = QUERY_DEFAULTS.LIMIT) {
+    console.log(`🔍 Searching playlists for: ${query}...`);
+    try {
+        const params = new URLSearchParams({
+            q: query,
+            type: 'playlist',
+            limit: limit.toString()
+        });
+        
+        const data = await spotifyFetch(`${SPOTIFY_ENDPOINTS.SEARCH}?${params}`);
+        console.log(`✅ Found ${data.playlists.items.length} playlists`);
+        return data;
+    } catch (error) {
+        console.error('❌ Error searching playlists:', error);
         throw error;
     }
 }

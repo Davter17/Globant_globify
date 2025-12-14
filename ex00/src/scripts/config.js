@@ -37,6 +37,7 @@ export const SPOTIFY_ENDPOINTS = {
     USER_TRACKS: '/me/tracks',
     CATEGORIES: '/browse/categories',
     CATEGORY_PLAYLISTS: (categoryId) => `/browse/categories/${categoryId}/playlists`,
+    FEATURED_PLAYLISTS: '/browse/featured-playlists',
     PLAYLIST: (playlistId) => `/playlists/${playlistId}`,
     PLAYLIST_TRACKS: (playlistId) => `/playlists/${playlistId}/tracks`,
     SEARCH: '/search',

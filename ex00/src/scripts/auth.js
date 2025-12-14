@@ -139,6 +139,9 @@ export async function handleCallback() {
             
             console.log('✅ Authentication successful!');
             
+            // Dispatch login event for UI update
+            window.dispatchEvent(new CustomEvent('userLoggedIn'));
+            
             // Clean URL
             window.history.replaceState(null, null, window.location.pathname);
             

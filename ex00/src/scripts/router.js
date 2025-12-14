@@ -1,5 +1,14 @@
 // Simple hash-based router
 
+import { 
+    renderHomeView, 
+    renderFavoritesView, 
+    renderPlaylistsView,
+    renderPlaylistDetailView,
+    renderProfileView,
+    renderSearchView
+} from './views.js';
+
 // Available routes
 const routes = {
     'home': 'home-view',
@@ -11,24 +20,38 @@ const routes = {
     'login': 'login-view'
 };
 
+// Route handlers (functions to call when entering a route)
+const routeHandlers = {
+    'home': renderHomeView,
+    'favorites': renderFavoritesView,
+    'playlists': renderPlaylistsView,
+    'playlist': renderPlaylistDetailView,
+    'profile': renderProfileView,
+    'search': renderSearchView
+};
+
 // Current route
 let currentRoute = null;
 
 // Navigate to a route
 export function navigateTo(route, params = {}) {
-    console.log(`Navigating to: ${route}`, params);
+    console.log(`🧭 Navigating to: ${route}`, params);
     
     // Hide all views
     Object.values(routes).forEach(viewId => {
         const view = document.getElementById(viewId);
-        if (view) view.style.display = 'none';
+        if (view) {
+            view.style.display = 'none';
+        }
     });
     
     // Show the requested view
     const viewId = routes[route];
+    console.log(`📄 Looking for view: ${viewId}`);
     const view = document.getElementById(viewId);
     
     if (view) {
+        console.log(`✅ View found, displaying: ${viewId}`);
         view.style.display = 'block';
         currentRoute = { route, params };
         
@@ -37,6 +60,16 @@ export function navigateTo(route, params = {}) {
             window.location.hash = `#${route}/${params.id}`;
         } else {
             window.location.hash = `#${route}`;
+        }
+        
+        // Call route handler if it exists
+        const handler = routeHandlers[route];
+        if (handler && typeof handler === 'function') {
+            try {
+                handler(params);
+            } catch (error) {
+                console.error(`Error in route handler for ${route}:`, error);
+            }
         }
         
         // Trigger route change event
@@ -65,18 +98,9 @@ function parseHash() {
 export function initRouter() {
     // Handle hash changes
     window.addEventListener('hashchange', () => {
+        console.log('🔄 Hash changed:', window.location.hash);
         const { route, id } = parseHash();
         navigateTo(route, id ? { id } : {});
-    });
-    
-    // Handle menu clicks
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = item.getAttribute('href');
-            const route = href.slice(1); // Remove #
-            navigateTo(route);
-        });
     });
     
     // Load initial route

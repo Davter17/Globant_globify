@@ -27,7 +27,7 @@ export function initMenu() {
         updateActiveMenuItem(route);
         
         // Close mobile menu after navigation
-        if (window.innerWidth <= 430 && menu) {
+        if (window.innerWidth <= 1120 && menu) {
             menu.classList.remove('active');
         }
     });
@@ -37,7 +37,7 @@ export function initMenu() {
         item.addEventListener('click', (e) => {
             // Let the router handle navigation
             // Just close mobile menu
-            if (window.innerWidth <= 430 && menu) {
+            if (window.innerWidth <= 1120 && menu) {
                 menu.classList.remove('active');
             }
         });
@@ -52,7 +52,7 @@ export function initMenu() {
         
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 430) {
+            if (window.innerWidth <= 1120) {
                 if (!menu.contains(e.target) && !menuToggle.contains(e.target)) {
                     menu.classList.remove('active');
                 }

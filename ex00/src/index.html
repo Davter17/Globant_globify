@@ -142,19 +142,25 @@
         <!-- Player Bar -->
         <div id="player-bar" class="player-bar" style="display: none;">
             <div class="player-track-info">
-                <img id="player-img" class="player-img" src="" alt="Track">
+                <img id="player-track-image" class="player-img" src="" alt="Track">
                 <div class="player-details">
-                    <div id="player-track-name" class="player-track-name">No track playing</div>
-                    <div id="player-track-artist" class="player-track-artist">-</div>
+                    <div id="player-track-name" class="player-track-name"></div>
+                    <div id="player-track-artist" class="player-track-artist"></div>
                 </div>
             </div>
             <div class="player-controls">
-                <button id="player-play-pause" class="btn-player btn-play-pause">
+                <button id="player-play-btn" class="btn-player btn-play-pause">
                     ▶️
                 </button>
             </div>
             <div class="player-extra">
-                <!-- Extra controls or info -->
+                <div class="player-progress-container">
+                    <span id="player-current-time" class="player-time">0:00</span>
+                    <div class="player-progress-bar">
+                        <div id="player-progress-fill" class="player-progress-fill"></div>
+                    </div>
+                    <span id="player-duration" class="player-time">0:00</span>
+                </div>
             </div>
         </div>
 

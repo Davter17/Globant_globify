@@ -749,6 +749,8 @@ body {
     text-align: center;
     padding: 60px 20px;
     color: var(--text-secondary);
+    grid-column: 1 / -1;
+    width: 100%;
 }
 
 .empty-state p:first-child {
@@ -858,17 +860,72 @@ body {
 .btn-player {
     background: transparent;
     border: none;
-    font-size: 32px;
+    font-size: 36px;
     cursor: pointer;
     transition: var(--transition);
+    color: var(--text-color);
+    padding: 8px;
+    line-height: 1;
 }
 
 .btn-player:hover {
     transform: scale(1.1);
+    color: var(--primary-color);
 }
 
 .player-extra {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-left: 20px;
+}
+
+.player-progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.player-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 40px;
+    text-align: center;
+}
+
+.player-progress-bar {
+    flex: 1;
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+.player-progress-bar:hover {
+    height: 6px;
+}
+
+.player-progress-bar:active {
+    height: 8px;
+}
+
+.player-progress-fill {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+    width: 0%;
+    pointer-events: none;
+}
+
+.player-progress-bar:hover .player-progress-fill {
+    background-color: #1ed760;
 }
 
 /* Footer (Mobile) */
@@ -1100,6 +1157,14 @@ body {
 
     .player-bar {
         padding: 0 12px;
+        flex-wrap: wrap;
+        height: auto;
+        min-height: var(--player-height);
+    }
+
+    .player-track-info {
+        flex: 0 0 auto;
+        max-width: 50%;
     }
 
     .player-img {
@@ -1107,8 +1172,27 @@ body {
         height: 48px;
     }
 
+    .player-controls {
+        flex: 0 0 auto;
+    }
+
     .btn-player {
         font-size: 24px;
+    }
+
+    .player-extra {
+        flex: 1 1 100%;
+        padding: 8px 0 8px 0;
+        max-width: 100%;
+    }
+
+    .player-progress-container {
+        max-width: 100%;
+    }
+
+    .player-time {
+        font-size: 11px;
+        min-width: 35px;
     }
     
     /* Playlist Hero Responsive */

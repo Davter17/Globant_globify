@@ -1,8 +1,9 @@
 // Main application entry point
 import { initRouter } from './router.js';
-import { login, logout, isAuthenticated, handleCallback } from './auth.js';
+import { login, logout, isAuthenticated, handleCallback, getAccessToken } from './auth.js';
 import { getUserProfile } from './api.js';
 import { initMenu } from './menu.js';
+import { initPlayer, togglePlayPause, setupProgressBarHandler } from './player.js';
 
 console.log('Globify app starting...');
 
@@ -92,6 +93,7 @@ function setupEventListeners() {
     // Get DOM elements
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
+    const playerPlayBtn = document.getElementById('player-play-btn');
     
     // Login button handler
     if (loginBtn) {
@@ -113,6 +115,23 @@ function setupEventListeners() {
         });
     }
     
+    // Player play/pause button handler
+    if (playerPlayBtn) {
+        playerPlayBtn.addEventListener('click', async () => {
+            console.log('🎵 Player play/pause button clicked');
+            const accessToken = getAccessToken();
+            if (accessToken) {
+                await togglePlayPause(accessToken);
+            }
+        });
+    }
+    
+    // Setup progress bar click handler
+    const accessToken = getAccessToken();
+    if (accessToken) {
+        setupProgressBarHandler(accessToken);
+    }
+    
     console.log('✅ Event listeners setup complete');
 }
 
@@ -131,6 +150,36 @@ async function initApp() {
         const success = await handleCallback();
         if (success) {
             updateUIForAuth(true);
+            
+            // Load user data and initialize player after successful callback
+            try {
+                const userData = await getUserProfile();
+                console.log('✅ User profile loaded:', userData.display_name);
+                updateHeaderWithUser(userData);
+                
+                // Initialize player
+                const accessToken = getAccessToken();
+                if (accessToken) {
+                    console.log('🎵 Initializing Spotify Player...');
+                    try {
+                        const result = await initPlayer(accessToken);
+                        if (result?.error === 'premium_required') {
+                            console.log('ℹ️ User is not Premium - playback disabled (browsing still works)');
+                        } else {
+                            console.log('✅ Player initialized successfully');
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Player initialization failed:', error);
+                        if (error.includes('premium') || error.includes('Premium')) {
+                            console.log('ℹ️ User is not Premium - playback disabled (browsing still works)');
+                        } else {
+                            console.log('ℹ️ Player functionality may be limited');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Failed to load user data after callback:', error);
+            }
         }
         console.log('✅ Globify initialized successfully!');
         return;
@@ -153,6 +202,23 @@ async function initApp() {
             
             // Update header with user info
             updateHeaderWithUser(userData);
+            
+            // Initialize player
+            const accessToken = getAccessToken();
+            if (accessToken) {
+                console.log('🎵 Initializing Spotify Player...');
+                try {
+                    const result = await initPlayer(accessToken);
+                    if (result?.error === 'premium_required') {
+                        console.log('ℹ️ User is not Premium - playback disabled (browsing still works)');
+                    } else {
+                        console.log('✅ Player initialized successfully');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Player initialization failed:', error);
+                    console.log('ℹ️ Player functionality may be limited');
+                }
+            }
         } catch (error) {
             console.error('❌ Failed to load user data:', error);
         }

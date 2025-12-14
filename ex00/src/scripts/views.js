@@ -11,6 +11,8 @@ import {
     searchPlaylists
 } from './api.js';
 import { formatDuration, getArtistNames } from './api.js';
+import { playTrack, playPlaylistContext } from './player.js';
+import { getAccessToken } from './auth.js';
 
 // ===== HOME VIEW =====
 
@@ -473,10 +475,13 @@ export async function renderFavoritesView() {
         // Add click handlers
         const trackItems = document.querySelectorAll('#favorites-list .track-item');
         trackItems.forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', async () => {
                 const uri = item.dataset.trackUri;
-                console.log('🎵 Play track from favorites:', uri);
-                alert('Play functionality will be implemented in Phase 14 (Player Controls)');
+                console.log('🎵 Playing track from favorites:', uri);
+                const accessToken = getAccessToken();
+                if (accessToken) {
+                    await playTrack(uri, accessToken);
+                }
             });
         });
         
@@ -511,7 +516,7 @@ export async function renderPlaylistsView() {
         if (playlists.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <p>📋 No playlists yet</p>
+                    <p>🎵 No playlists yet</p>
                     <p>Create playlists on Spotify!</p>
                 </div>
             `;
@@ -613,10 +618,14 @@ export async function renderPlaylistDetailView(params) {
             window.history.back();
         });
         
-        // Add play all handler (will be implemented in Phase 14)
-        document.getElementById('play-all-btn')?.addEventListener('click', () => {
-            console.log('🎵 Play all tracks from playlist:', playlistId);
-            alert('Play functionality will be implemented in Phase 14 (Player Controls)');
+        // Add play all handler
+        document.getElementById('play-all-btn')?.addEventListener('click', async () => {
+            console.log('🎵 Playing all tracks from playlist:', playlist.uri);
+            const accessToken = getAccessToken();
+            if (accessToken && playlist.uri) {
+                // Play the entire playlist context
+                await playPlaylistContext(playlist.uri, accessToken);
+            }
         });
         
         // Load tracks
@@ -663,11 +672,14 @@ export async function renderPlaylistDetailView(params) {
         // Add click handlers
         const trackItems = document.querySelectorAll('.track-item');
         trackItems.forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', async () => {
                 const uri = item.dataset.trackUri;
                 const index = item.dataset.trackIndex;
-                console.log('🎵 Play track:', uri, 'at position:', index);
-                alert('Play functionality will be implemented in Phase 14 (Player Controls)');
+                console.log('🎵 Playing track:', uri, 'at position:', index);
+                const accessToken = getAccessToken();
+                if (accessToken) {
+                    await playTrack(uri, accessToken);
+                }
             });
         });
         
@@ -827,10 +839,13 @@ export async function renderSearchView() {
             // Add click handlers
             const trackItems = document.querySelectorAll('#search-results .track-item');
             trackItems.forEach(item => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', async () => {
                     const uri = item.dataset.trackUri;
-                    console.log('🎵 Play track from search:', uri);
-                    alert('Play functionality will be implemented in Phase 14 (Player Controls)');
+                    console.log('🎵 Playing track from search:', uri);
+                    const accessToken = getAccessToken();
+                    if (accessToken) {
+                        await playTrack(uri, accessToken);
+                    }
                 });
             });
             

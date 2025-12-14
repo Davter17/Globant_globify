@@ -1,0 +1,6 @@
+// Local configuration (NOT tracked by git)
+// Copy this file to config.local.js and add your Spotify Client ID
+
+export const LOCAL_CONFIG = {
+    CLIENT_ID: 'your_spotify_client_id_here'
+};

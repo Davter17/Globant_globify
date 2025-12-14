@@ -30,11 +30,11 @@ export async function spotifyFetch(endpoint, options = {}) {
         console.log(`🌐 Fetching: ${url}`);
         const response = await fetch(url, config);
         
-        // Handle 401 - Token expired
-        if (response.status === 401) {
-            console.error('❌ Token expired or invalid');
+        // Handle 401/403 - Token expired or invalid
+        if (response.status === 401 || response.status === 403) {
+            console.error('❌ Token expired, invalid, or belongs to different user');
             logout();
-            throw new Error('Token expired');
+            throw new Error('Token invalid - logged out automatically');
         }
         
         // Handle 429 - Rate limiting

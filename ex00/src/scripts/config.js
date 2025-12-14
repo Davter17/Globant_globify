@@ -29,3 +29,24 @@ export const STORAGE_KEYS = {
     TOKEN_EXPIRY: 'spotify_token_expiry',
     USER_DATA: 'spotify_user_data'
 };
+
+// API Endpoints
+export const SPOTIFY_ENDPOINTS = {
+    USER_PROFILE: '/me',
+    USER_PLAYLISTS: '/me/playlists',
+    USER_TRACKS: '/me/tracks',
+    CATEGORIES: '/browse/categories',
+    CATEGORY_PLAYLISTS: (categoryId) => `/browse/categories/${categoryId}/playlists`,
+    PLAYLIST: (playlistId) => `/playlists/${playlistId}`,
+    PLAYLIST_TRACKS: (playlistId) => `/playlists/${playlistId}/tracks`,
+    SEARCH: '/search',
+    PLAYER: '/me/player',
+    PLAY: '/me/player/play',
+    PAUSE: '/me/player/pause'
+};
+
+// Query parameters defaults
+export const QUERY_DEFAULTS = {
+    LIMIT: 50,
+    MARKET: 'US'
+};

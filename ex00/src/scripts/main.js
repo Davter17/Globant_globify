@@ -1,4 +1,7 @@
 // Main application entry point
+import { initRouter } from './router.js';
+import { STORAGE_KEYS } from './config.js';
+
 console.log('Globify app starting...');
 
 // DOM Elements
@@ -13,21 +16,6 @@ if (menuToggle) {
     });
 }
 
-// Menu navigation
-menuItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-        // Remove active class from all items
-        menuItems.forEach(i => i.classList.remove('active'));
-        // Add active class to clicked item
-        item.classList.add('active');
-        
-        // Close menu on mobile after selection
-        if (window.innerWidth <= 430) {
-            menu.classList.remove('active');
-        }
-    });
-});
-
 // Close menu when clicking outside on mobile
 document.addEventListener('click', (e) => {
     if (window.innerWidth <= 430) {
@@ -37,6 +25,48 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Temporary: Log when page loads
-console.log('✅ Globify loaded successfully!');
-console.log('🎵 Ready to implement authentication...');
+// Close menu on mobile after route change
+window.addEventListener('routechange', () => {
+    if (window.innerWidth <= 430) {
+        menu.classList.remove('active');
+    }
+});
+
+// Check if user is authenticated
+function checkAuth() {
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    const expiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
+    
+    if (token && expiry && Date.now() < expiry) {
+        console.log('✅ User is authenticated');
+        return true;
+    }
+    
+    console.log('❌ User is not authenticated');
+    return false;
+}
+
+// Initialize app
+function initApp() {
+    console.log('🚀 Initializing Globify...');
+    
+    // Initialize router
+    initRouter();
+    
+    // Check authentication
+    const isAuthenticated = checkAuth();
+    
+    if (!isAuthenticated) {
+        // Redirect to login if not authenticated
+        window.location.hash = '#login';
+    }
+    
+    console.log('✅ Globify initialized successfully!');
+}
+
+// Wait for DOM to be ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

@@ -50,11 +50,32 @@ export const LOCAL_CONFIG = {
 
 ### 3. Run with Docker
 
+#### Using Makefile (Recommended)
+
+```bash
+# Build and start
+make up
+
+# View logs
+make logs
+
+# Stop
+make down
+
+# Rebuild after changes
+make rebuild
+
+# See all commands
+make help
+```
+
+#### Or using Docker Compose directly
+
 ```bash
 # Build and start the application
 docker-compose up --build
 
-# Access the application at http://localhost:8080
+# Access the application at https://localhost:8080
 ```
 
 ## Usage

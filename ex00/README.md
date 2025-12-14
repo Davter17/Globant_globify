@@ -27,7 +27,7 @@ Quick steps:
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new application
 3. Note your **Client ID**
-4. Add `http://localhost:8080/callback` to Redirect URIs
+4. Add `http://127.0.0.1:8080/callback` to Redirect URIs
 5. Save your changes
 
 ### 2. Configure the Application
@@ -75,7 +75,7 @@ make help
 # Build and start the application
 docker-compose up --build
 
-# Access the application at https://localhost:8080
+# Access the application at http://127.0.0.1:8080
 ```
 
 ## Usage

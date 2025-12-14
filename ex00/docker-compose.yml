@@ -1,14 +1,14 @@
-version: '3.8'
-
 services:
   web:
     build: .
     container_name: globify-app
     ports:
       - "8080:8080"
+      - "3000:3000"
     volumes:
       # Mount source for development (hot reload)
       - ./src:/usr/share/nginx/html
+      # Note: server is not mounted to preserve node_modules from Docker build
     restart: unless-stopped
     environment:
       - NGINX_HOST=localhost

@@ -44,7 +44,7 @@ up:
 	docker-compose up -d
 	@echo ""
 	@echo "✅ Globify is running!"
-	@echo "🌐 Open: https://localhost:8080"
+	@echo "🌐 Open: http://127.0.0.1:8080"
 	@echo "📋 Logs: make logs"
 	@echo "🛑 Stop: make down"
 
@@ -78,7 +78,7 @@ clean:
 # Test if running
 test:
 	@echo "🔍 Testing if Globify is running..."
-	@curl -k -s https://localhost:8080 > /dev/null && echo "✅ App is running at https://localhost:8080" || echo "❌ App is not running. Try: make up"
+	@curl -s http://127.0.0.1:8080 > /dev/null && echo "✅ App is running at http://127.0.0.1:8080" || echo "❌ App is not running. Try: make up"
 
 # Development mode with logs
 dev:

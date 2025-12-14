@@ -5,7 +5,7 @@ import { LOCAL_CONFIG } from './config.local.js';
 
 export const SPOTIFY_CONFIG = {
     CLIENT_ID: LOCAL_CONFIG.CLIENT_ID,
-    REDIRECT_URI: 'https://localhost:8080/callback',
+    REDIRECT_URI: 'http://127.0.0.1:8080/callback',
     AUTH_ENDPOINT: 'https://accounts.spotify.com/authorize',
     TOKEN_ENDPOINT: 'https://accounts.spotify.com/api/token',
     API_BASE_URL: 'https://api.spotify.com/v1',

@@ -1,0 +1,33 @@
+/* CSS Variables */
+:root {
+    --primary-color: #1db954;
+    --secondary-color: #191414;
+    --accent-color: #ff006e;
+    --text-color: #ffffff;
+    --text-secondary: #b3b3b3;
+    --background: #121212;
+    --surface: #181818;
+    --hover: #282828;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--background);
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+#app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+}
+
+/* Placeholder styles - will be developed in Phase 3 */

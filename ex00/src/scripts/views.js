@@ -45,50 +45,105 @@ export async function renderHomeView() {
     categoriesContainer.style.display = 'grid';
     viewTitle.textContent = 'Browse Categories';
     
-    // Show predefined categories (no loading needed)
-    const categories = PREDEFINED_CATEGORIES;
+    // Show loading with spinner
+    categoriesContainer.innerHTML = `
+        <div class="loading-container" style="grid-column: 1 / -1;">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading music categories...</p>
+        </div>
+    `;
     
-    console.log(`✅ Showing ${categories.length} music categories`);
-    
-    // Render categories with emoji icons
-    categoriesContainer.innerHTML = categories.map((category, index) => {
-        const isHighlighted = index < 3; // First 3 are highlighted on desktop
-        const gradients = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-            'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
-            'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
-            'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)',
-            'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
-            'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)'
-        ];
-        const gradient = gradients[index % gradients.length];
+    try {
+        // Try to get Spotify categories
+        const data = await getCategories(50);
+        let categories = [];
         
-        return `
-            <div class="category-card ${isHighlighted ? 'highlight' : ''}" data-category-id="${category.id}" data-category-query="${category.query}">
-                <div class="category-image" style="display: flex; align-items: center; justify-content: center; font-size: 48px; background: ${gradient};">
-                    ${category.icon}
-                </div>
-                <h3 class="category-name">${category.name}</h3>
-            </div>
-        `;
-    }).join('');
-    
-    // Add click handlers
-    const categoryCards = document.querySelectorAll('.category-card');
-    categoryCards.forEach(card => {
-        card.addEventListener('click', async () => {
-            const categoryName = card.querySelector('.category-name').textContent;
-            const categoryQuery = card.dataset.categoryQuery;
-            console.log(`🎯 User clicked on category: "${categoryName}" (query: ${categoryQuery})`);
-            await showCategoryPlaylistsBySearch(categoryQuery, categoryName);
+        if (data.categories && data.categories.items && data.categories.items.length > 0) {
+            console.log(`✅ Loaded ${data.categories.items.length} Spotify categories`);
+            categories = data.categories.items;
+            
+            // Render Spotify categories with their images
+            categoriesContainer.innerHTML = categories.map((category, index) => {
+                const isHighlighted = index < 3;
+                const imageUrl = category.icons && category.icons.length > 0 ? category.icons[0].url : '';
+                
+                return `
+                    <div class="category-card ${isHighlighted ? 'highlight' : ''}" 
+                         data-category-id="${category.id}" 
+                         data-category-name="${category.name}"
+                         data-category-query="${category.name.toLowerCase()}">
+                        <div class="category-image">
+                            <img src="${imageUrl}" alt="${category.name}">
+                        </div>
+                        <h3 class="category-name">${category.name}</h3>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            throw new Error('No categories returned from Spotify');
+        }
+        
+        // Add click handlers (use search instead of category playlists API)
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.addEventListener('click', async () => {
+                const categoryName = card.dataset.categoryName;
+                const categoryQuery = card.dataset.categoryQuery;
+                console.log(`🎯 User clicked on category: "${categoryName}" (will search: ${categoryQuery})`);
+                await showCategoryPlaylistsBySearch(categoryQuery, categoryName);
+            });
         });
-    });
+        
+    } catch (error) {
+        console.error('❌ Error loading Spotify categories:', error);
+        console.log('⚠️ Falling back to predefined categories');
+        
+        // Fallback to predefined categories
+        const categories = PREDEFINED_CATEGORIES;
+        console.log(`✅ Showing ${categories.length} predefined music categories`);
+        
+        categoriesContainer.innerHTML = categories.map((category, index) => {
+            const isHighlighted = index < 3;
+            const gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+                'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
+                'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)',
+                'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+                'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)'
+            ];
+            const gradient = gradients[index % gradients.length];
+            
+            return `
+                <div class="category-card ${isHighlighted ? 'highlight' : ''}" 
+                     data-category-id="${category.id}" 
+                     data-category-name="${category.name}"
+                     data-category-query="${category.query}">
+                    <div class="category-image" style="display: flex; align-items: center; justify-content: center; font-size: 48px; background: ${gradient};">
+                        ${category.icon}
+                    </div>
+                    <h3 class="category-name">${category.name}</h3>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.addEventListener('click', async () => {
+                const categoryName = card.dataset.categoryName;
+                const categoryQuery = card.dataset.categoryQuery;
+                console.log(`🎯 User clicked on category: "${categoryName}" (query: ${categoryQuery})`);
+                await showCategoryPlaylistsBySearch(categoryQuery, categoryName);
+            });
+        });
+    }
 }
 
 // Show playlists for a category using search
@@ -112,8 +167,13 @@ async function showCategoryPlaylistsBySearch(query, categoryName) {
     // Add back button handler
     document.getElementById('back-to-categories')?.addEventListener('click', renderHomeView);
     
-    // Show loading
-    playlistsContainer.innerHTML = '<div class="loading">Loading playlists...</div>';
+    // Show loading with spinner
+    playlistsContainer.innerHTML = `
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p class="loading-text">Finding the best ${categoryName} playlists...</p>
+        </div>
+    `;
     
     try {
         const data = await searchPlaylists(query, 50);

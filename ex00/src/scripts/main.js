@@ -75,6 +75,12 @@ function updateUIForAuth(authenticated) {
     }
 }
 
+// Listen for logout events
+window.addEventListener('userLoggedOut', () => {
+    console.log('🔔 Logout event received - updating UI');
+    updateUIForAuth(false);
+});
+
 // Initialize app
 async function initApp() {
     console.log('🚀 Initializing Globify...');

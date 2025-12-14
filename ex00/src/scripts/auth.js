@@ -165,6 +165,10 @@ export function logout() {
     localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     localStorage.removeItem('spotify_auth_state');
+    localStorage.removeItem('spotify_code_verifier');
+    
+    // Dispatch logout event for UI update
+    window.dispatchEvent(new CustomEvent('userLoggedOut'));
     
     // Redirect to login
     navigateTo('login');
